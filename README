@@ -1,0 +1,7 @@
+This little project serves as a simulation of an elevator system. 
+
+What i'd like to achieve:
+
+* Distributed components. 
+* pluggable algorithm/rule
+* something fun to watch
