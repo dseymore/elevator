@@ -1,0 +1,19 @@
+body{background-color: rgb(209,210,255); font-family: Verdana, Arial, Helvetica, sans-serif;}
+
+h2{font-size: 1.2em; margin-top: 0pt; margin-right: 0pt; margin-bottom: 0pt;
+                margin-left: 0pt; padding-top: 0pt; padding-right: 0pt;
+                padding-bottom: 0pt; padding-left: 0pt; color: rgb(177,177,177);}
+
+
+#navbar {
+                position:absolute;
+                top: 0%;
+                left: 50%;
+                width:30em;
+                margin-top: -1em;
+                margin-left: -15em; /*set to a negative number 1/2 of your width*/
+        }
+
+th,td{border:none! important; padding:0em! important}
+
+img{border: 0! important}

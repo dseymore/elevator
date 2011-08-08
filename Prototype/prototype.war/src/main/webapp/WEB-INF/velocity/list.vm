@@ -1,0 +1,232 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link REL="SHORTCUT ICON" HREF="#springUrl('/favicon.png')">
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+	<title>Task Management</title>
+
+        <link rel="stylesheet" type="text/css" href="#springUrl('/style.css')"/>
+
+        ##Jquery for growl-like toast notifications :D
+        <link rel="stylesheet" type="text/css" href="#springUrl('/jgrowl/jquery.jgrowl.css')"/>
+        <script type="text/javascript" src="#springUrl('/jquery-1.3.2.min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/jgrowl/jquery.jgrowl_minimized.js')"></script>
+
+        ##YUI CSS files:
+        <link rel="stylesheet" type="text/css" href="#springUrl('/yui/base/base-min.css')"/>
+        <link rel="stylesheet" type="text/css" href="#springUrl('/yui/assets/skins/sam/skin.css')"/>
+        ##YUI JS files:
+        <script type="text/javascript" src="#springUrl('/yui/yahoo-dom-event/yahoo-dom-event.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/element/element-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/json/json-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/connection/connection-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/datasource/datasource-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/charts/charts-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/container/container-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/imageloader/imageloader-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/layout/layout-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/menu/menu-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/paginator/paginator-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/editor/simpleeditor-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/tabview/tabview-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/dragdrop/dragdrop-min.js')"></script>
+        <script type="text/javascript" src="#springUrl('/yui/button/button-min.js')"></script>
+
+
+        <script type="text/javascript" >
+	    	###Some Help dawg
+	    	function growlHelp(){
+	    		${esc.dollar}.jGrowl('<ul>' +
+	    		'<li>ALT+SHIFT+R New Task</li>' +
+	    		'<li>ALT+SHIFT+W Help</li>' +
+	    		'</ul>', { life: 10000, header: "Help"});
+	    	}
+
+                function dueHelp(){
+	    		${esc.dollar}.jGrowl('Number of days, weeks, or months to be due after creation. pick ONE unit.<br><ul><li>1d = 1 Day</li><li>2w = 2 Weeks</li><li>4m = 4 months</li></ul>', { life: 10000, header: "Due dates"});
+	    	}
+
+                function cronHelp(){
+                        ${esc.dollar}.jGrowl('Field Order:<br>' +
+                                '<li>Seconds</li>' +
+                                '<li>Minutes</li>' +
+                                '<li>Hours</li>' +
+                                '<li>Day-of-Month</li>' +
+                                '<li>Month</li>' +
+                                '<li>Day-of-Week</li>' +
+                                '<li>Year</li>' +
+                                 '<P>' +
+                                 'The \'*\' character is used to specify all values. For example, &quot;*&quot;' +
+                                 'in the minute field means &quot;every minute&quot;.' +
+                                 '<P>' +
+                                 'The \'?\' character is allowed for the day-of-month and day-of-week fields. It' +
+                                 'is used to specify \'no specific value\'. This is useful when you need to' +
+                                 'specify something in one of the two fields, but not the other.' +
+                                 '<P>' +
+                                 'The \'-\' character is used to specify ranges For example &quot;10-12&quot; in' +
+                                 'the hour field means &quot;the hours 10, 11 and 12&quot;.' +
+                                 '<P>' +
+                                 'The \',\' character is used to specify additional values. For example' +
+                                 '&quot;MON,WED,FRI&quot; in the day-of-week field means &quot;the days Monday,' +
+                                 'Wednesday, and Friday&quot;.<br><a href="http://www.opensymphony.com/quartz/api/org/quartz/CronExpression.html">Reference</a>', { life: 20000, header: "Cron Expression"});
+                }
+
+        	YAHOO.util.Event.onDOMReady(function () {
+                        ##alt + shift + r = reply to the thread
+			var kl3 = new YAHOO.util.KeyListener(document, {alt: true, shift:true, keys:82 }, { fn:function(event){ panel.show(); return false; } } );
+			kl3.enable();
+
+			##alt + shift + w = help (fucking H is being used by the help in the browser.. damnit)
+			var helpKey = new YAHOO.util.KeyListener(document, {alt: true, shift:true, keys:87 }, { fn:function(event){
+				growlHelp();
+			} } );
+			helpKey.enable();
+
+			});
+         </script>
+    </head>
+    <body id="body" class="yui-skin-sam">
+        <div id="navbar">
+                <div id="panel2"><div class="bd">
+                        <span>[<a href="#" onclick="panel.show(); return false;">New Task</a>]</span>
+                        <span>[<a href="#" onclick="growlHelp(); return false;">Help</a>]</span>
+                </div></div>
+        </div>
+        <div id="newTaskPanel">
+            <form action="#springUrl('/add.task')" method="POST">
+                    <div id="panel1"><div class="bd">
+                            <fieldset>
+                                    <legend>Details</legend>
+                                    <table>
+                                            <tr><td><label for="assignee">Assignee:</label></td><td><input id="assignee" type="text" name="assignee" value="" size="40"/></td></tr>
+                                            <tr><td><label for="summary">Summary:</label></td><td><input id="summary" type="text" name="summary" value="" size="40"/></td></tr>
+                                            <tr><td><label for="duedate">Due After:</label></td><td><input id="duedate" type="text" name="duedate" value="" size="40"/><a href"#" onclick="dueHelp(); return false;">?</a></td></tr>
+                                            <tr><td><label for="project">Project:</label></td><td><select name="project" id="project">
+                                                 #foreach($task in ${projects})
+                                                    <option value="$task">$task</option>
+                                                 #end
+                                           </select></td></tr>
+                                            <tr><td><label for="schedule">Schedule:</label></td><td><input id="schedule" type="text" name="schedule" value="0 15 10 * * ? 2012" size="40"/><a href="#" onclick="cronHelp(); return false;">?</a></td></tr>
+                                    </table>
+                            </fieldset>
+                            <span><textarea name="description" id="description" cols="50" rows="10"></textarea></span>
+                            <br>
+                            <span><input id="submitButton" type="submit"/></span>
+                    </div></div>
+            </form>
+            <!-- YUI magic to turn a basic accessible form into a friendly for people who can see form -->
+            <script type="text/javascript">
+                    var myEditor = new YAHOO.widget.SimpleEditor('description', {
+                        height: '200px',
+                        width: '450px',
+                        dompath: false,
+                        animate: false,
+                        handleSubmit: true,
+                        toolbar: {
+                            titlebar: 'Description',
+                            buttons: [
+                                { group: 'textstyle', label: 'Font Style',
+                                    buttons: [
+                                        { type: 'push', label: 'Bold', value: 'bold', disabled: true },
+                                        { type: 'push', label: 'Italic', value: 'italic', disabled: true },
+                                        { type: 'push', label: 'Underline', value: 'underline', disabled: true },
+                                        { type: 'separator' },
+                                        { type: 'select', label: 'Arial', value: 'fontname', disabled: true,
+                                            menu: [
+                                                { text: 'Arial', checked: true },
+                                                { text: 'Arial Black' },
+                                                { text: 'Comic Sans MS' },
+                                                { text: 'Courier New' },
+                                                { text: 'Lucida Console' },
+                                                { text: 'Tahoma' },
+                                                { text: 'Times New Roman' },
+                                                { text: 'Trebuchet MS' },
+                                                { text: 'Verdana' }
+                                            ]
+                                        },
+                                        { type: 'spin', label: '10', value: 'fontsize', range: [ 9, 35 ], disabled: true },
+                                        { type: 'separator' },
+                                        { type: 'color', label: 'Font Color', value: 'forecolor', disabled: true },
+                                        { type: 'color', label: 'Background Color', value: 'backcolor', disabled: true }
+                                    ]
+                                }
+                            ]
+                        }
+                    });
+
+                    myEditor.render();
+
+                    // Instantiate a Panel from markup
+                    var panel = new YAHOO.widget.Panel("panel1", { width:"475px", visible:false, constraintoviewport:true, modal:true} );
+                    panel.setHeader("Add Task");
+                    panel.setFooter("");
+                    panel.render();
+
+                    // Instantiate a panel for navbar
+                    var panel2 = new YAHOO.widget.Panel("panel2", { width:"30em", visible:true, constraintoviewport:true, modal:false} );
+                    panel2.setHeader("Options");
+                    panel2.setFooter("");
+                    panel2.render();
+
+                    var submitButton = new YAHOO.widget.Button("submitButton", { label: "Create" });
+            </script>
+        </div>
+        <!-- here is the content -->
+       <br><br><br><br>
+       <h2>Active</h2>
+       <div>
+            #foreach($task in ${active})
+                    <li class="activeTask">[<a href="#springUrl('/disable.task')?id=$task.identifier">Disable</a>] [<a href="#" onclick="panelt${task.identifier}.show(); return false;">Details</a>] - $task.summary
+                    <div id="taskPanel$task.identifier">
+                        <div class="bd">
+                            <table>
+                                <tr><th style="text-align: left;">Assignee:</th><td>$task.user</td></tr>
+                                <tr><th style="text-align: left;">Schedule:</th><td>$task.schedule</td></tr>
+                                <tr><th style="text-align: left;">Project:</th><td>$task.project</td></tr>
+                                <tr><th style="text-align: left;">Due After:</th><td>$task.dueAfter</td></tr>
+                                <tr><th style="text-align: left;">Next Run Time:</th><td>$task.nextRunDate</td></tr>
+                                <tr><th style="text-align: left;" colspan="2">Description:</th></tr>
+                                <tr><td style="text-align: left;" colspan="2">$task.description</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        // Instantiate a Panel from markup
+                        var panelt${task.identifier} = new YAHOO.widget.Panel("taskPanel$task.identifier", { width:"475px", visible:false, constraintoviewport:true, modal:true} );
+                        panelt${task.identifier}.setHeader("Task Details");
+                        panelt${task.identifier}.setFooter("");
+                        panelt${task.identifier}.render();
+                    </script>
+                    </li>
+            #end
+       </div>
+        <br>
+       <h2>Inactive</h2>
+       <div>
+            #foreach($task in ${inactive})
+                    <li class="inactiveTask">[<a href="#springUrl('/enable.task')?id=$task.identifier">Enable</a>] [<a href="#" onclick="panelt${task.identifier}.show(); return false;">Details</a>] - $task.summary</li>
+                    <div id="taskPanel$task.identifier">
+                        <div class="bd">
+                            <table>
+                                <tr><th style="text-align: left;">Assignee:</th><td>$task.user</td></tr>
+                                <tr><th style="text-align: left;">Schedule:</th><td>$task.schedule</td></tr>
+                                <tr><th style="text-align: left;">Project:</th><td>$task.project</td></tr>
+                                <tr><th style="text-align: left;">Due After:</th><td>$task.dueAfter</td></tr>
+                                <tr><th style="text-align: left;">Next Run Time:</th><td>$task.nextRunDate</td></tr>
+                                <tr><th style="text-align: left;" colspan="2">Description:</th></tr>
+                                <tr><td style="text-align: left;" colspan="2">$task.description</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        // Instantiate a Panel from markup
+                        var panelt${task.identifier} = new YAHOO.widget.Panel("taskPanel$task.identifier", { width:"475px", visible:false, constraintoviewport:true, modal:true} );
+                        panelt${task.identifier}.setHeader("Task Details");
+                        panelt${task.identifier}.setFooter("<button alt=\"Delete\" style=\"border: 0px; background-color: white;\" onclick=\"window.location='#springUrl('/disable.task')?id=$task.identifier&really=true'\"><img src=\"#springUrl('/editdelete.png')\"/></button>");
+                        panelt${task.identifier}.render();
+                    </script>
+                    </li>
+            #end
+       </div>
+    </body>
+</html>
